@@ -1,39 +1,46 @@
 import expressAsyncHandler from "express-async-handler";
+import { Request, Response } from "express";
 
 // @desc   Auth user/set token
 // route   POST /api/users/auth
 // @access Public
-const authUser = expressAsyncHandler(async (req, res) => {
+const authUser = expressAsyncHandler(async (req: Request, res: Response) => {
   res.status(200).json({ message: "Auth User" });
 });
 
 // @desc   Register a new user
 // route   POST /api/users
 // @access Public
-const registerUser = expressAsyncHandler(async (req, res) => {
-  res.status(200).json({ message: "Register User" });
-});
+const registerUser = expressAsyncHandler(
+  async (req: Request, res: Response) => {
+    res.status(200).json({ message: "Register User" });
+  }
+);
 
 // @desc   Logout user
 // route   POST /api/users/logout
 // @access Public
-const logoutUser = expressAsyncHandler(async (req, res) => {
+const logoutUser = expressAsyncHandler(async (req: Request, res: Response) => {
   res.status(200).json({ message: "Logout User" });
 });
 
 // @desc   Get user profile
 // route   GET /api/users/profile
 // @access Private
-const getUserProfile = expressAsyncHandler(async (req, res) => {
-  res.status(200).json({ message: "User Profile" });
-});
+const getUserProfile = expressAsyncHandler(
+  async (req: Request, res: Response) => {
+    res.status(200).json({ message: "User Profile" });
+  }
+);
 
 // @desc   Update profile
 // route   PUT /api/users/profile
 // @access Private
-const updateUserProfile = expressAsyncHandler(async (req, res) => {
-  res.status(200).json({ message: "Update Profile" });
-});
+const updateUserProfile = expressAsyncHandler(
+  async (req: Request, res: Response) => {
+    res.status(200).json({ message: "Update Profile" });
+  }
+);
 
 export {
   authUser,
