@@ -1,5 +1,6 @@
 import prisma from "../../db.ts";
 import bcrypt from "bcryptjs";
+import { prismaUserPreview } from "../types/user-types.ts";
 
 async function createUserDB(email: string, password: string) {
   const salt = bcrypt.genSaltSync(10);
@@ -8,6 +9,7 @@ async function createUserDB(email: string, password: string) {
       email,
       password: bcrypt.hashSync(password, salt),
     },
+    select: prismaUserPreview,
   });
   return user;
 }

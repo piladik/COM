@@ -2,12 +2,13 @@ import expressAsyncHandler from "express-async-handler";
 import { Request, Response } from "express";
 import { createUserDB } from "../utils/auth-db/register-db.ts";
 import { generateToken } from "../utils/auth-db/generate-token.ts";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import { findUserByToken } from "../utils/auth-db/find-user-by-token.ts";
+import { updateUser } from "../utils/auth-db/update-user.ts";
 import bcrypt from "bcryptjs";
 import prisma from "../db.ts";
 
 // @desc   Auth user/set token
-// route   POST /api/users/login
+// @route   POST /api/users/login
 // @access Public
 const loginUser = expressAsyncHandler(async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -32,7 +33,7 @@ const loginUser = expressAsyncHandler(async (req: Request, res: Response) => {
 });
 
 // @desc   Register a new user
-// route   POST /api/users
+// @route   POST /api/users
 // @access Public
 const registerUser = expressAsyncHandler(
   async (req: Request, res: Response) => {
@@ -45,13 +46,12 @@ const registerUser = expressAsyncHandler(
     }
 
     const user = await createUserDB(email, password);
-    generateToken(res, user.id);
-    res.status(201).json({ success: true, user: user.email });
+    res.status(201).json({ success: true, user: user });
   }
 );
 
 // @desc   Logout user
-// route   POST /api/users/logout
+// @route   POST /api/users/logout
 // @access Public
 const logoutUser = expressAsyncHandler(async (req: Request, res: Response) => {
   res.cookie("jwt", "", {
@@ -62,35 +62,35 @@ const logoutUser = expressAsyncHandler(async (req: Request, res: Response) => {
 });
 
 // @desc   Get user profile
-// route   GET /api/users/profile
+// @route   GET /api/users/profile
 // @access Private
 const getUserProfile = expressAsyncHandler(
   async (req: Request, res: Response) => {
     const token = req.cookies.jwt;
-    const decoded = jwt.verify(
-      token,
-      process.env.ACCESS_TOKEN_SECRET!
-    ) as JwtPayload;
-
-    const user = await prisma.user.findFirst({
-      where: {
-        id: decoded.userId,
-      },
-      select: {
-        id: true,
-        email: true,
-      },
-    });
-    res.status(200).json({ success: true, user });
+    const user = await findUserByToken(token);
+    res
+      .status(200)
+      .json({ success: true, user: { id: user.id, email: user.email } });
   }
 );
 
 // @desc   Update profile
-// route   PUT /api/users/profile
+// @route   PUT /api/users/profile
 // @access Private
 const updateUserProfile = expressAsyncHandler(
   async (req: Request, res: Response) => {
-    res.status(200).json({ message: "Update Profile" });
+    const token = req.cookies.jwt;
+    const user = await findUserByToken(token);
+
+    if (req.body.password) {
+      const salt = bcrypt.genSaltSync(10);
+      user.password = bcrypt.hashSync(req.body.password, salt);
+    }
+
+    user.email = req.body.email ?? user.email;
+
+    const updatedUser = await updateUser(user);
+    res.status(200).json({ success: true, user: updatedUser });
   }
 );
 

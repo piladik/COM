@@ -17,13 +17,10 @@ const errorHandler = (
   let message = err.message;
 
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
-    if ((err.code = "P2002")) {
-      return res.status(statusCode).json({
-        success: false,
-        message: "User already exists",
-        errMessage: err.message.slice(err.message.indexOf("Unique")),
-      });
-    }
+    return res.status(statusCode).json({
+      success: false,
+      errMessage: err.message,
+    });
   }
 
   res.status(statusCode).json({
