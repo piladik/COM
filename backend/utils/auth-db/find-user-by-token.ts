@@ -1,5 +1,4 @@
 import prisma from "../../db.ts";
-import { Prisma } from "@prisma/client";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { prismaUser } from "../types/user-types.ts";
 

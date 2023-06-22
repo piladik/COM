@@ -1,5 +1,4 @@
 import { Prisma } from "@prisma/client";
-import jwt, { JwtPayload } from "jsonwebtoken";
 
 export interface IUser {
   id: string;
