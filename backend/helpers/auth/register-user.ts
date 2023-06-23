@@ -1,6 +1,6 @@
 import prisma from "../../db.ts";
 import bcrypt from "bcryptjs";
-import { prismaUserPreview } from "../types/user-types.ts";
+import { prismaUserPreview } from "../../utils/prisma-selectors/user-selectors.ts";
 
 async function createUserDB(email: string, password: string) {
   const salt = bcrypt.genSaltSync(10);
