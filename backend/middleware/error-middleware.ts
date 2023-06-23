@@ -14,19 +14,18 @@ const errorHandler = (
   next: NextFunction
 ) => {
   let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-  let message = err.message;
+
+  const defaultErr = {
+    success: false,
+    message: err.message,
+    stack: process.env.NODE_ENV === "production" ? null : err.stack,
+  };
 
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
-    return res.status(statusCode).json({
-      success: false,
-      errMessage: err.message,
-    });
+    defaultErr.message = err.message;
   }
 
-  res.status(statusCode).json({
-    message,
-    stack: process.env.NODE_ENV === "production" ? null : err.stack,
-  });
+  return res.status(statusCode).json(defaultErr);
 };
 
 export { notFound, errorHandler };

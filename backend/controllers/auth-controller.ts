@@ -1,25 +1,31 @@
 import expressAsyncHandler from "express-async-handler";
-import { Request, Response } from "express";
-import { createUserDB } from "../utils/auth-db/register-db.ts";
-import { generateToken } from "../utils/auth-db/generate-token.ts";
-import { findUserByToken } from "../utils/auth-db/find-user-by-token.ts";
-import { updateUser } from "../utils/auth-db/update-user.ts";
+import { NextFunction, Request, Response } from "express";
+import { createUserDB } from "../helpers/auth/register-user.ts";
+import { generateToken } from "../helpers/auth/generate-token.ts";
+import { findUserByToken } from "../helpers/auth/find-user-by-token.ts";
+import { updateUser } from "../helpers/auth/update-user.ts";
 import bcrypt from "bcryptjs";
 import prisma from "../db.ts";
+import { prismaUser } from "../utils/prisma-selectors/user-selectors.ts";
 
 // @desc   Auth user/set token
 // @route   POST /api/users/login
 // @access Public
-const loginUser = expressAsyncHandler(async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+const loginUser = expressAsyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { email, password } = req.body;
 
-  if (!email || !password) {
-    res.status(400);
-    throw new Error("Missing email or password");
-  }
+    if (!email || !password) {
+      res.status(400);
+      throw new Error("Missing email or password");
+    }
 
-  const user = await prisma.user.findFirst({ where: { email } });
-  if (user && (await bcrypt.compare(password, user.password))) {
+    const user = await prisma.user.findFirstOrThrow({
+      where: { email },
+      select: prismaUser,
+    });
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) throw new Error("Invalid credentials");
     const { id } = user;
     const accessToken = generateToken(res, id);
     res.json({
@@ -27,10 +33,8 @@ const loginUser = expressAsyncHandler(async (req: Request, res: Response) => {
       user: { id: user.id, email: user.email },
       accessToken: accessToken,
     });
-  } else {
-    res.send(401).json({ success: false, message: "Something went wrong" });
   }
-});
+);
 
 // @desc   Register a new user
 // @route   POST /api/users

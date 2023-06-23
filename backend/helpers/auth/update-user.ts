@@ -1,5 +1,6 @@
 import prisma from "../../db.ts";
-import { IUser, prismaUserPreview } from "../types/user-types.ts";
+import { IUser } from "../../utils/types/user-types.ts";
+import { prismaUserPreview } from "../../utils/prisma-selectors/user-selectors.ts";
 
 const updateUser = async (user: IUser) => {
   const updatedUser = await prisma.user.update({

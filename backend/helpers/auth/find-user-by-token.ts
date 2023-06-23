@@ -1,6 +1,6 @@
 import prisma from "../../db.ts";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { prismaUser } from "../types/user-types.ts";
+import { prismaUser } from "../../utils/prisma-selectors/user-selectors.ts";
 
 const findUserByToken = async (accessToken: string) => {
   const decoded = jwt.verify(
