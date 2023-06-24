@@ -18,12 +18,16 @@ function Form({ formConfig }: { formConfig: TFormConfig }): JSX.Element {
 
   const formValues = Object.entries(form);
 
+  console.log(
+    `Password match: is true? ${form.password === form.passwordConfirm}`
+  );
   const content = formValues.map((input, index) => {
     return (
       <FormInput
         name={input[0]}
         value={input[1]}
         placeholder={formConfig.placeholders[index]}
+        match={form.password === form.passwordConfirm}
         onChangeFn={onChange}
         key={input[0]}
       />
